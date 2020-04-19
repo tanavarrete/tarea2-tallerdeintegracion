@@ -13,8 +13,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const hamburguesaRoute = require('./routes/hamburguesas-routes')
-app.use(hamburguesaRoute)
+const ingredienteRoute = require('./routes/ingredientes-routes')
 
+app.use(hamburguesaRoute)
+app.use(ingredienteRoute)
 
 app.use(express.static('public'))
 

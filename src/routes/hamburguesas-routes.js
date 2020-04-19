@@ -4,10 +4,24 @@ const router = express.Router()
 
 const Hamburguesa = require('../modules/hamburguesa-module');
 
+router.get('/hamburguesa', async(req, res) => {
+
+    try {
+        const hamburguesas = await Hamburguesa.find()
+        .select('id nombre precio descripcion imagen')
+        .populate('ingredientes');
+        res.send({  hamburguesas });
+    } catch (error) {
+        if (error){
+            console.log('ERROR getting hamburguesas:', error);
+            res.status(500).send({ status: 'ERROR', data: error.message });}
+    }
+  })
+
 router.post('/hamburguesa', async(req,res) =>{
     try {
         const { nombre, precio, descripcion, imagen } = req.body;
-        console.log(nombre)
+        console.log(req.body)
         const hamburguesa = new Hamburguesa();
         hamburguesa.nombre = nombre;
         hamburguesa.precio = precio;
@@ -28,9 +42,49 @@ router.post('/hamburguesa', async(req,res) =>{
         res.status(500).send({ status: 'ERROR', message: error.message });
       }
     })
+router.get('/hamburguesa/:id', async (req, res) => {
+    try {
+        Hamburguesa.find({"id" : req.params.id }, function (err, hamburguesa) {
+            res.send({ hamburguesa})
+        })}
+    catch(err){
+        if (err)
+                res.send(err);
+        }
+})
+router.delete('/hamburguesa/:id', (req, res) => {
+    Hamburguesa.remove({ "id": req.params.id }, function(err) {
+        if (!err) {
+            res.send('Hamburguesa eliminada!');
+        }
+        else {
+            res.send(err);
+        }
+    });
+})
 
-router.get('/hamburguesa/:name', (req, res) => {
-    res.send(`You have requested a hamburguer ${req.params.name}`)
-  })
+router.patch('/hamburguesa/:id', (req, res) => {
+    Hamburguesa.findOne({
+        "id": req.params.id
+      })
+      .then((hamburguesa) => {
+        hamburguesa.nombre = req.body.nombre;
+        hamburguesa.precio = req.body.precio;
+        hamburguesa.descripcion = req.body.descripcion;
+        hamburguesa.imagen = req.body.imagen;
+        hamburguesa
+          .save()
+          .then(() => {
+            res.jsonp({ hamburguesa }); // enviamos la boleta de vuelta
+          });
+      });
+        
+})
+
+router.put('/hamburguesa/:hamburguesaId/ingrediente/:ingredienteId', (req, res, next) => {
+    res.send(`You have requested a person ${req.param('hamburguesaId')} ${req.param('ingredienteId')}`)
+})
+  
+  
 
 module.exports = router

@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 const IngredienteSchema = new Schema(
   {
-    id: ObjectId,
+    id: { type: Number, required: true },
     nombre: { type: String, required: true },
     descripcion: { type: String, required: true }
   },
