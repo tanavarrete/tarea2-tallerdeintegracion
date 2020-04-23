@@ -1,90 +1,138 @@
-const express = require('express')
+const express = require("express");
 
-const router = express.Router()
+const router = express.Router();
 
-const Hamburguesa = require('../modules/hamburguesa-module');
+const Hamburguesa = require("../modules/hamburguesa-module");
+const Ingrediente = require("../modules/ingrediente-module");
 
-router.get('/hamburguesa', async(req, res) => {
-
-    try {
-        const hamburguesas = await Hamburguesa.find()
-        .select('id nombre precio descripcion imagen')
-        .populate('ingredientes');
-        res.send({  hamburguesas });
-    } catch (error) {
-        if (error){
-            console.log('ERROR getting hamburguesas:', error);
-            res.status(500).send({ status: 'ERROR', data: error.message });}
+router.get("/hamburguesa", async (req, res) => {
+  try {
+    const hamburguesas = await Hamburguesa.find()
+      .select("id nombre precio descripcion imagen -_id")
+      .populate("ingredientes", "path -_id")
+      .sort({ id: 1 });
+    res.send({ hamburguesas });
+  } catch (error) {
+    if (error) {
+      console.log("ERROR getting hamburguesas:", error);
+      res.status(500).send({ status: "ERROR", data: error.message });
     }
-  })
+  }
+});
 
-router.post('/hamburguesa', async(req,res) =>{
-    try {
-        const { nombre, precio, descripcion, imagen } = req.body;
-        console.log(req.body)
-        const hamburguesa = new Hamburguesa();
-        hamburguesa.nombre = nombre;
-        hamburguesa.precio = precio;
-        hamburguesa.descripcion = descripcion;
-        hamburguesa.imagen = imagen;
+router.post("/hamburguesa", async (req, res) => {
+  try {
+    const { nombre, precio, descripcion, imagen } = req.body;
+    console.log(req.body);
+    if (nombre && precio && descripcion && imagen) {
+      const hamburguesa = new Hamburguesa();
+      hamburguesa.nombre = nombre;
+      hamburguesa.precio = precio;
+      hamburguesa.descripcion = descripcion;
+      hamburguesa.imagen = imagen;
 
-        await hamburguesa.save();
+      await hamburguesa.save();
 
-        res.send({ status: 'OK', message: 'Hamburguesa Created' });
-    } catch (error) {
-        if (error.code && error.code === 11000) {
-          res
-            .status(400)
-            .send({ status: 'DUPLICATED_VALUES', message: error.keyValue });
-          return;
-        }
-        //console.log('creating user ERROR', error);
-        res.status(500).send({ status: 'ERROR', message: error.message });
-      }
-    })
-router.get('/hamburguesa/:id', async (req, res) => {
-    try {
-        Hamburguesa.find({"id" : req.params.id }, function (err, hamburguesa) {
-            res.send({ hamburguesa})
-        })}
-    catch(err){
-        if (err)
-                res.send(err);
-        }
-})
-router.delete('/hamburguesa/:id', (req, res) => {
-    Hamburguesa.remove({ "id": req.params.id }, function(err) {
-        if (!err) {
-            res.send('Hamburguesa eliminada!');
-        }
-        else {
-            res.send(err);
-        }
+      res.status(201).send({ status: "OK", message: "Hamburguesa Creada" });
+    } else throw "input invalidos";
+  } catch (error) {
+    res.status(400).send("input invalido");
+  }
+});
+router.get("/hamburguesa/:id", async (req, res) => {
+  try {
+    const hamburguesa = await Hamburguesa.findOne({ id: req.params.id })
+      .select("id nombre precio descripcion imagen -_id")
+      .populate("ingredientes", "path -_id");
+    if (hamburguesa) res.send({ hamburguesa });
+    else res.status(404).send("hamburguesa inexistente");
+  } catch (err) {
+    if (err) res.status(400).send("id invalido");
+  }
+});
+router.delete("/hamburguesa/:id", async (req, res) => {
+  try {
+    const hamburguesa = await Hamburguesa.deleteOne({ id: req.params.id });
+    if (hamburguesa.deletedCount) res.send("hamburguesa eliminada");
+    else res.status(404).send("hamburguesa inexistente");
+  } catch (err) {
+    if (err) res.status(400).send("id invalido");
+  }
+});
+
+router.patch("/hamburguesa/:id", async (req, res) => {
+  try {
+    const hamburguesa = await Hamburguesa.findOne({
+      id: req.params.id,
     });
-})
-
-router.patch('/hamburguesa/:id', (req, res) => {
-    Hamburguesa.findOne({
-        "id": req.params.id
-      })
-      .then((hamburguesa) => {
-        hamburguesa.nombre = req.body.nombre;
-        hamburguesa.precio = req.body.precio;
-        hamburguesa.descripcion = req.body.descripcion;
+    if (hamburguesa) {
+      if (req.body.nombre) hamburguesa.nombre = req.body.nombre;
+      if (req.body.precio) hamburguesa.precio = req.body.precio;
+      if (req.body.descripcion) hamburguesa.descripcion = req.body.descripcion;
+      if (req.body.imagen) {
         hamburguesa.imagen = req.body.imagen;
-        hamburguesa
-          .save()
-          .then(() => {
-            res.jsonp({ hamburguesa }); // enviamos la boleta de vuelta
-          });
+      }
+      hamburguesa.save().then(() => {
+        res.jsonp({ hamburguesa });
       });
-        
-})
+    } else res.status(404).send("hamburguesa inexistente");
+  } catch (err) {
+    if (err) res.status(400).send("id invalido");
+  }
+});
 
-router.put('/hamburguesa/:hamburguesaId/ingrediente/:ingredienteId', (req, res, next) => {
-    res.send(`You have requested a person ${req.param('hamburguesaId')} ${req.param('ingredienteId')}`)
-})
-  
-  
+router.put(
+  "/hamburguesa/:hamburguesaId/ingrediente/:ingredienteId",
+  async (req, res, next) => {
+    try {
+      const hamburguesaId = req.param("hamburguesaId");
+      const hamburguesa = await Hamburguesa.findOne({ id: hamburguesaId });
+      if (!hamburguesa) {
+        res.status(400).send("Id de hamburguesa inválido");
+      }
+      const ingredienteId = req.param("ingredienteId");
+      const ingrediente = await Ingrediente.findOne({ id: ingredienteId });
+      if (!ingrediente) {
+        res.status(404).send("ingrediente inexistente");
+      }
 
-module.exports = router
+      const update = await Hamburguesa.findOneAndUpdate(
+        { id: hamburguesaId },
+        { $push: { ingredientes: ingrediente } },
+        { new: true }
+      );
+      if (update)
+        res.send("Ingrediente agregado");
+    } catch (err) {
+      if (err) res.status(400).send(err);
+    }
+  }
+);
+router.delete(
+  "/hamburguesa/:hamburguesaId/ingrediente/:ingredienteId",
+  async (req, res, next) => {
+    try {
+      const hamburguesaId = req.param("hamburguesaId");
+      const hamburguesa = await Hamburguesa.findOne({ id: hamburguesaId });
+      if (!hamburguesa) {
+        res.status(400).send("Id de hamburguesa inválido");
+      }
+      const ingredienteId = req.param("ingredienteId");
+      const ingrediente = await Ingrediente.findOne({ id: ingredienteId });
+      if (!ingrediente) {
+        res.status(404).send("ingrediente inexistente");
+      }
+      const update = await Hamburguesa.findOneAndUpdate(
+        { _id: hamburguesa._id },
+        { $pullAll: { ingredientes: [ingrediente._id] } },
+        { new: true } 
+      );
+      if (update)
+        res.send("Ingrediente eliminado");
+    } catch (err) {
+      if (err) res.status(400).send(err);
+    }
+  }
+);
+
+module.exports = router;

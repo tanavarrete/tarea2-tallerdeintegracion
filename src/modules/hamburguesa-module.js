@@ -1,8 +1,8 @@
-let mongoose = require('mongoose')
+let mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-const autoIncrementModelID = require('./counter-module');
+const autoIncrementModelID = require("./counter-module");
 
 const HamburguesaSchema = new Schema(
   {
@@ -11,18 +11,20 @@ const HamburguesaSchema = new Schema(
     precio: { type: Number, required: true },
     descripcion: { type: String, required: true },
     imagen: { type: String, require: true },
-    ingredientes    : [ { type: Schema.Types.ObjectId, ref: 'Ingrediente' } ]
-  }
+    ingredientes: [{ type: Schema.Types.ObjectId, ref: "Ingrediente" }],
+  },
+  { versionKey: false },
+  {"strict": "throw"}
 );
 
-HamburguesaSchema.pre('save', function (next) {
-    if (!this.isNew) {
-      next();
-      return;
-    }
-  
-    autoIncrementModelID('activities', this, next);
-  });
+HamburguesaSchema.pre("save", function (next) {
+  if (!this.isNew) {
+    next();
+    return;
+  }
 
-const model = mongoose.model('Hamburguesa', HamburguesaSchema);
+  autoIncrementModelID("activities", this, next);
+});
+
+const model = mongoose.model("Hamburguesa", HamburguesaSchema);
 module.exports = model;
