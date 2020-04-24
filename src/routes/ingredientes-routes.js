@@ -26,7 +26,7 @@ router.post("/ingrediente", async (req, res) => {
     ingrediente.id = id;
     ingrediente.nombre = nombre;
     ingrediente.descripcion = descripcion;
-    ingrediente.path = "https://rocky-eyrie-23489.herokuapp.com/" + id;
+    ingrediente.path = "https://rocky-eyrie-23489.herokuapp.com/ingrediente/" + id;
 
     await ingrediente.save();
     res.status(201).send({ status: "OK", message: "Ingrediente Creada" });
