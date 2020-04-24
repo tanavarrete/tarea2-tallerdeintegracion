@@ -7,7 +7,7 @@ const IngredienteSchema = new Schema(
     id: { type: Number, required: true, unique:true },
     nombre: { type: String, required: true },
     descripcion: { type: String, required: true },
-    path: { type: String , default: 'http://localhost:3000/ingrediente/'},
+    path: { type: String , default: 'https://rocky-eyrie-23489.herokuapp.com/'},
     __v: { type: Number, select: false}
   },
   { versionKey: false }
