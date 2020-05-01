@@ -11,7 +11,7 @@ router.get("/hamburguesa", async (req, res) => {
       .select("id nombre precio descripcion imagen -_id")
       .populate("ingredientes", "path -_id")
       .sort({ id: 1 });
-    res.send({ hamburguesas });
+    res.send({status: "resultados obtenidos", data: hamburguesas });
   } catch (error) {
     if (error) {
       console.log("ERROR getting hamburguesas:", error);
@@ -33,7 +33,7 @@ router.post("/hamburguesa", async (req, res) => {
 
       await hamburguesa.save();
 
-      res.status(201).send({ status: "OK", message: "Hamburguesa Creada" });
+      res.status(201).send({ status: "hamburguesa creada", message: hamburguesa });
     } else throw "input invalidos";
   } catch (error) {
     res.status(400).send("input invalido");
@@ -44,7 +44,7 @@ router.get("/hamburguesa/:id", async (req, res) => {
     const hamburguesa = await Hamburguesa.findOne({ id: req.params.id })
       .select("id nombre precio descripcion imagen -_id")
       .populate("ingredientes", "path -_id");
-    if (hamburguesa) res.send({ hamburguesa });
+    if (hamburguesa) res.send({ status: "operacion exitosa", data: hamburguesa });
     else res.status(404).send("hamburguesa inexistente");
   } catch (err) {
     if (err) res.status(400).send("id invalido");
@@ -73,7 +73,7 @@ router.patch("/hamburguesa/:id", async (req, res) => {
         hamburguesa.imagen = req.body.imagen;
       }
       hamburguesa.save().then(() => {
-        res.jsonp({ hamburguesa });
+        res.jsonp({status: "operacion exitosa", data: hamburguesa });
       });
     } else res.status(404).send("hamburguesa inexistente");
   } catch (err) {
