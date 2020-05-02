@@ -132,8 +132,8 @@ router.delete(
         { $pullAll: { ingredientes: [ingrediente._id] } },
         { new: true } 
       );
-      const update2 = await Hamburguesa.findOneAndUpdate(
-        { _id: hamburguesa._id },
+      const update2 = await Ingrediente.findOneAndUpdate(
+        { _id: ingrediente._id },
         { $pullAll: { hamburguesas: [hamburguesa._id] } },
         { new: true } 
       );
