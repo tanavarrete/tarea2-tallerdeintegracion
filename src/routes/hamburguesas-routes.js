@@ -33,7 +33,7 @@ router.post("/hamburguesa", async (req, res) => {
 
       await hamburguesa.save();
 
-      res.status(201).send({ status: "hamburguesa creada", message: hamburguesa });
+      res.status(201).send(hamburguesa);
     } else throw "input invalidos";
   } catch (error) {
     res.status(400).send("input invalido");
