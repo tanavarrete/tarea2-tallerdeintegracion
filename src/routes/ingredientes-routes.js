@@ -49,9 +49,15 @@ router.get("/ingrediente/:id", async (req, res) => {
 });
 router.delete("/ingrediente/:id", async (req, res) => {
 try {
-  const ingrediente = await Ingrediente.deleteOne({ id: req.params.id });
-  if (ingrediente.deletedCount) res.send("ingrediente eliminado");
-  else res.status(404).send("ingrediente inexistente");
+  const ingrediente = await Ingrediente.findOne({ id: ingredienteId });
+  if (ingrediente.hamburguesas.lenght == 0){
+    const ingrediente = await Ingrediente.deleteOne({ id: req.params.id });
+    if (ingrediente.deletedCount) res.send("ingrediente eliminado");
+    else res.status(409).send("Ingrediente no se puede borrar, se encuentra presente en una hamburguesa");
+  }
+  else{
+    res.status(404).send("ingrediente inexistente");
+  }
 } catch (err) {
   if (err) res.status(400).send("id invalido");
 }

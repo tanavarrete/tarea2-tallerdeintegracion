@@ -101,8 +101,13 @@ router.put(
         { $push: { ingredientes: ingrediente } },
         { new: true }
       );
+      const update2 = await Ingrediente.findOneAndUpdate(
+        { id: ingredienteId },
+        { $push: { hamburguesas: hamburguesa } },
+        { new: true }
+      );
       if (update)
-        res.send("Ingrediente agregado");
+        res.status(201).send("Ingrediente agregado");
     } catch (err) {
       if (err) res.status(400).send(err);
     }
@@ -125,6 +130,11 @@ router.delete(
       const update = await Hamburguesa.findOneAndUpdate(
         { _id: hamburguesa._id },
         { $pullAll: { ingredientes: [ingrediente._id] } },
+        { new: true } 
+      );
+      const update = await Hamburguesa.findOneAndUpdate(
+        { _id: hamburguesa._id },
+        { $pullAll: { hamburguesas: [hamburguesa._id] } },
         { new: true } 
       );
       if (update)
