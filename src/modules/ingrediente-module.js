@@ -10,7 +10,7 @@ const IngredienteSchema = new Schema(
     nombre: { type: String, required: true },
     descripcion: { type: String, required: true },
     path: { type: String , default: 'https://rocky-eyrie-23489.herokuapp.com/ingrediente/'},
-    hamburguesas: [],
+    hamburguesas: [{ type: Schema.Types.ObjectId, ref: "Hamburguesa" }],
     __v: { type: Number, select: false}
   },
   { versionKey: false }
