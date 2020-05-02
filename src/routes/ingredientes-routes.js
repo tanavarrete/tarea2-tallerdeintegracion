@@ -31,7 +31,7 @@ router.post("/ingrediente", async (req, res) => {
     ingrediente.path = "https://rocky-eyrie-23489.herokuapp.com/ingrediente/" + ingrediente.id;
 
     await ingrediente.save();
-    res.status(201).send({ status: "Ingrediente Creado", message: ingrediente });
+    res.status(201).send( ingrediente );
   } catch (error) {
     res.status(400).send("input ivalido");
     }
