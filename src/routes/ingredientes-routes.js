@@ -9,7 +9,7 @@ router.get("/ingrediente", async (req, res) => {
       {},
       { _id: 0, id: 1, nombre: 1, descripcion: 1 }
     ).sort({ id: 1 });
-    res.send({ ingredientes });
+    res.send( ingredientes );
   } catch (error) {
     if (error) {
       console.log("ERROR getting ingredientes:", error);
@@ -41,7 +41,7 @@ router.get("/ingrediente/:id", async (req, res) => {
   try {
     const ingrediente = await Ingrediente.findOne({ id: req.params.id })
       .select({ _id: 0, id: 1, nombre: 1, descripcion: 1 })
-    if (ingrediente) res.send({ ingrediente });
+    if (ingrediente) res.send( ingrediente );
     else res.status(404).send("ingrediente inexistente");
   } catch (err) {
     if (err) res.status(400).send("id invalido");
